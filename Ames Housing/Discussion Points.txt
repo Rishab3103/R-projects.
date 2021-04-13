@@ -1,0 +1,49 @@
+Discussion Points:
+1. What is the central variable?
+Ans- SalePrice
+2. What are the independent variables?
+Ans-Probable answers:Bsmt.Unf.SF,BsmtFin.SF1, EnclosedPorch,GarageArea,GrLivArea,OpenPorch,ScreenPorch,TotRmsAbvGrd,WoodDeck.SF,X1st.Flr.SF,X2ndFlr.SF
+Personal Choices:
+3.What are the categorical variables?
+Ans-Probable Answers:GarageType,KitchenQual,LandSlope,LotConfig,RoofStyle,SaleCondition
+4 Is there a disparity between the central tendencies? How much difference can be considered a disparity ?
+
+train set to be used
+
+Does zoning have an influence on property price
+
+housing_filtered$predicted_garage<-predict(regression_Garage)
+housing_filtered$residual_garage<-residuals(regression_Garage)
+
+ggplot(housing_filtered, aes(x = GarageArea, y = SalePrice)) +  # Set up canvas with outcome variable on y-axis
+  geom_point(size=0.2)+
+  geom_point(aes(y = predicted_garage), col="red", shape = 1)+
+  geom_segment(aes(xend =GarageArea, yend = predicted_garage),alpha=0.2)+
+  geom_smooth(method = "lm", se = FALSE, color = "lightgrey")+
+  geom_point(aes(color = abs(residual_garage)), size=0.5)+
+  scale_color_continuous(low = "black", high = "blue") +
+  labs(title="Regression Graph for Sales Price vs Garage Area")
+  theme_bw()
+housing_filtered
+housing_filtered$predicted_GrLivArea<-predict(lm(data = housing_filtered, SalePrice~GrLivArea))
+housing_filtered$residual_GrLivArea<-residuals(lm(data = housing_filtered, SalePrice~GrLivArea))
+  ggplot(housing_filtered, aes(x = GrLivArea, y = SalePrice)) +  # Set up canvas with outcome variable on y-axis
+    geom_point(size=0.2)+
+    geom_point(aes(y = predicted_GrLivArea), col="red", shape = 1)+
+    geom_segment(aes(xend =GrLivArea, yend = predicted_GrLivArea),alpha=0.2)+
+    geom_smooth(method = "lm", se = FALSE, color = "lightgrey")+
+    geom_point(aes(color = abs(residual_GrLivArea)), size=0.2)+
+    scale_color_continuous(low = "black", high = "blue") +
+    labs(title="Regression Graph for Sales Price vs Living Area above Ground")
+  theme_bw()
+housing_filtered$predicted_totalBSMTSF<-predict(lm(data = housing_filtered, SalePrice~TotalBsmtSF))
+housing_filtered$residual_totalBSMTSF<-residuals(lm(data = housing_filtered, SalePrice~TotalBsmtSF))
+ggplot(housing_filtered, aes(x = TotalBsmtSF, y = SalePrice)) +  
+  geom_point(size=0.2)+
+  geom_point(aes(y =predicted_totalBSMTSF), col="red", shape = 1)+
+  geom_segment(aes(xend =TotalBsmtSF, yend = predicted_totalBSMTSF),alpha=0.2)+
+  geom_smooth(method = "lm", se = FALSE, color = "lightgrey")+
+  geom_point(aes(color = abs(residual_totalBSMTSF)), size=0.2)+
+  scale_color_continuous(low = "black", high = "blue") +
+  labs(title="Regression Graph for Sales Price vs Total Basement Area")+
+  theme_bw()  

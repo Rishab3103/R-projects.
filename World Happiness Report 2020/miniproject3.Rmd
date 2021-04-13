@@ -1,0 +1,199 @@
+---
+title: "MiniProject3"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+
+library(reshape2)
+library(tidyverse)
+library(ggplot2)
+
+library(dplyr) 
+
+library(hrbrthemes)
+```
+
+
+
+```{r happiness}
+
+happiness<-read.csv("2020.csv")
+
+```
+
+```{r World Map}
+#Creating a world map for happiness scores.
+library(maps)
+library(rworldmap)
+happiness$Country.name
+
+
+happiness_sub<- subset(happiness[c("Ladder.score","Country.name")])
+
+
+happiness_map<-joinCountryData2Map(happiness_sub, joinCode="NAME", nameJoinColumn="Country.name")
+
+mapCountryData(happiness_map, nameColumnToPlot="Ladder.score",catMethod="fixedWidth", colourPalette = "heat",mapTitle="Happiness Scores by country")
+
+
+
+```
+
+```{r Pearson Correlation Heat Map}
+
+#Pearson Correlation Heat Map
+
+features <- c("Logged.GDP.per.capita","Social.support","Healthy.life.expectancy","Freedom.to.make.life.choices", "Generosity","Perceptions.of.corruption")
+cormat <- round(cor(happiness[c("Ladder.score", features)], use = "complete.obs"), 2)
+cormat
+melted_cormat <- melt(cormat)
+
+melted_cormat
+ggplot(data = melted_cormat, aes(Var2, Var1, fill = value))+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Pearson\nCorrelation") +
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                   size = 12, hjust = 1))+
+  coord_fixed()
+```
+
+```{r Exploratory Data Analyis for GDP, Social Support, Healthy life expectancy}
+
+#Exploratory Data Analyis for GDP, Social Support, Healthy life expectancy
+
+library(ggplot2)
+happiness%>%
+  ggplot(aes(Logged.GDP.per.capita,Ladder.score, color=Regional.indicator))+ geom_point()
+happiness%>%
+  ggplot(aes(Social.support,Ladder.score, color=Regional.indicator))+ geom_point()
+happiness%>%
+  ggplot(aes(Healthy.life.expectancy,Ladder.score, color=Regional.indicator))+ geom_point()
+
+
+
+
+```
+```{r some more EDA}
+
+#some more EDA
+
+happiness_above_mean<-happiness%>%
+  filter(Ladder.score>=mean(Ladder.score))%>%
+  arrange((desc(Ladder.score)))
+
+happiness_above_mean%>%
+  ggplot(aes(x=Ladder.score,y=Regional.indicator))+ geom_col(width = 0.3)+labs(title = "Happiness scores above the mean", x="Happiness Score")
+
+happiness_below_mean<-happiness%>%
+  filter(Ladder.score<=mean(Ladder.score))
+happiness_below_mean%>%
+  ggplot(aes(Ladder.score,Regional.indicator))+  geom_col(width = 0.3)+labs(title = "Happiness scores below the mean", x="Happiness Score")
+
+
+happiness_above_mean_top10<-happiness%>%
+  filter(Ladder.score>=mean(Ladder.score))%>%
+  filter(Ladder.score>=7.2375)
+  
+
+happiness_above_mean_top10%>%
+  ggplot(aes(Ladder.score,Regional.indicator))+ geom_col(width = 0.3)+labs(title = "Top 10 Happiness scores ", x="Happiness Score")
+
+happiness_below_mean_top10<-happiness%>%
+  filter(Ladder.score<=mean(Ladder.score))%>%
+  filter(Ladder.score<=3.5733)
+happiness_below_mean_top10%>%
+  ggplot(aes(Ladder.score,Regional.indicator))+  geom_col(width = 0.3)+labs(title = "Bottom 10 Happiness scores", x="Happiness Score")
+
+
+
+
+```
+```{r Some more investigation into the GDP}
+
+#Some more investigation into the GDP
+
+gdp_above_mean<-happiness%>%
+  filter(Logged.GDP.per.capita>=mean(Logged.GDP.per.capita))%>%
+  arrange((desc(Logged.GDP.per.capita)))
+
+gdp_above_mean%>%
+  ggplot(aes(x=Logged.GDP.per.capita,y=Regional.indicator))+ geom_col(width = 0.3)+labs(title = "GDP above mean", x="GDP per capita")
+
+gdp_below_mean<-happiness%>%
+  filter(Logged.GDP.per.capita<=mean(Logged.GDP.per.capita))
+gdp_below_mean%>%
+  ggplot(aes(Logged.GDP.per.capita,Regional.indicator))+  geom_col(width = 0.3)+labs(title = "GDP below mean", x="GDP per capita")
+
+
+gdp_above_mean_top10<-happiness%>%
+  filter(Logged.GDP.per.capita>=mean(Logged.GDP.per.capita))%>%
+  arrange(desc(Logged.GDP.per.capita))%>%
+  filter(Logged.GDP.per.capita>=10.8)
+  
+
+gdp_above_mean_top10%>%
+  ggplot(aes(Logged.GDP.per.capita,Regional.indicator))+ geom_col(width = 0.3)+labs(title = "Top 10 GDP per capita", x="GDP per capita")
+
+gdp_below_mean_top10<-happiness%>%
+  filter(Logged.GDP.per.capita<=mean(Logged.GDP.per.capita))%>%
+  arrange(Logged.GDP.per.capita)%>%
+  filter(Logged.GDP.per.capita<=7.3)
+gdp_below_mean_top10%>%
+  ggplot(aes(Logged.GDP.per.capita,Regional.indicator))+  geom_col(width = 0.3)+labs(title = "Bottom 10 GDP per capita scores", x="GDP per capita")
+warnings()
+
+```
+
+```{r Model Selection(backward regression)}
+library(car)
+library(olsrr)
+
+
+#Model Selection(backward regression)
+
+library(MASS)
+full.model<-lm(data=happiness, Ladder.score~Logged.GDP.per.capita+Social.support+Healthy.life.expectancy+Freedom.to.make.life.choices+Generosity+Perceptions.of.corruption)
+step.model<-stepAIC(full.model, direction = "backward", trace=FALSE)
+
+#Check for multicollinearity
+
+vif_quant<-car::vif(lm(data=happiness, Ladder.score~Logged.GDP.per.capita+Social.support+Healthy.life.expectancy+Freedom.to.make.life.choices+Generosity))
+
+quadratic<-stepAIC((lm(data=happiness,Ladder.score~poly(Logged.GDP.per.capita, degree = 2, raw=TRUE)+poly(Social.support, degree = 2, raw=TRUE)+poly(Healthy.life.expectancy, degree = 2, raw=TRUE)+poly(Freedom.to.make.life.choices, degree = 2, raw=TRUE)+poly(Generosity, degree = 2, raw=TRUE)+poly(Perceptions.of.corruption, degree = 2, raw=TRUE))), direction = "backward", trace = FALSE)
+quadratic
+polynomial<-stepAIC((lm(data=happiness,Ladder.score~poly(Logged.GDP.per.capita, degree = 3, raw=TRUE)+poly(Social.support, degree = 3, raw=TRUE)+poly(Healthy.life.expectancy, degree = 3, raw=TRUE)+poly(Freedom.to.make.life.choices, degree = 3, raw=TRUE)+poly(Generosity, degree = 3, raw=TRUE)+poly(Perceptions.of.corruption, degree = 3, raw=TRUE))),direction = "backward", trace = FALSE)
+
+
+anova(step.model,quadratic)
+anova(step.model,polynomial)
+plot(step.model)
+plot(polynomial)
+plot(quadratic)
+
+
+
+```
+```{r clean summaries}
+# clean summaries
+
+model1<- lm(data=happiness,Ladder.score ~ Logged.GDP.per.capita + Social.support + Healthy.life.expectancy + 
+    Freedom.to.make.life.choices + Perceptions.of.corruption)
+summary(model1)
+model2<-lm(data=happiness,Ladder.score ~ poly(Logged.GDP.per.capita, degree = 2, raw = TRUE) + 
+    poly(Social.support, degree = 2, raw = TRUE) + poly(Healthy.life.expectancy, 
+    degree = 2, raw = TRUE) + poly(Freedom.to.make.life.choices, 
+    degree = 2, raw = TRUE) )
+summary(model2)
+model3<-lm(data=happiness,Ladder.score ~ poly(Logged.GDP.per.capita, degree = 3, raw = TRUE) + 
+    poly(Social.support, degree = 3, raw = TRUE) + poly(Healthy.life.expectancy, 
+    degree = 3, raw = TRUE) + poly(Freedom.to.make.life.choices, 
+    degree = 3, raw = TRUE))
+summary(model3)
+```
+

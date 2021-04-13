@@ -1,0 +1,212 @@
+---
+title: "Topic 2"
+output: html_document
+---
+
+
+
+```{r cars}
+library(reshape2)
+library(tidyverse)
+library(ggplot2)
+library(dplyr) 
+```
+
+## Reading the RADAR data set.
+
+```{r pressure, echo=FALSE}
+dapp<- read.csv("radar.csv")
+```
+
+## Data Preprocessing
+```{r}
+for(i in 1:length(dapp$Txs_24h)){
+  if(grepl('[.,]',dapp$Txs_24h[i])){
+    dapp$Txs_24h[i]<-  gsub('[.,]', '', dapp$Txs_24h[i])
+    dapp$Txs_24h[i]<-  gsub('[k,]', '00', dapp$Txs_24h[i])
+    dapp$Txs_24h[i]<-  gsub('[M,]', '00000', dapp$Txs_24h[i])
+  }
+  else{
+    dapp$Txs_24h[i]<-  gsub('[k,]', '000', dapp$Txs_24h[i])
+    dapp$Txs_24h[i]<-  gsub('[M,]', '000000', dapp$Txs_24h[i])
+  }
+
+}
+dapp$Txs_24h<-as.numeric(dapp$Txs_24h)
+
+for(i in 1:length(dapp$Txs_7d)){
+  if(grepl('[.,]',dapp$Txs_7d[i])){
+    dapp$Txs_7d[i]<-  gsub('[.,]', '', dapp$Txs_7d[i])
+    dapp$Txs_7d[i]<-  gsub('[k,]', '00', dapp$Txs_7d[i])
+    dapp$Txs_7d[i]<-  gsub('[M,]', '00000', dapp$Txs_7d[i])
+  }
+  else{
+    dapp$Txs_7d[i]<-  gsub('[k,]', '000', dapp$Txs_7d[i])
+    dapp$Txs_7d[i]<-  gsub('[M,]', '000000', dapp$Txs_7d[i])
+  }
+  
+}
+
+dapp$Txs_7d<-as.numeric(dapp$Txs_7d)
+median(dapp$Txs_7d)
+
+
+for(i in 1:length(dapp$balance)){
+  if(grepl('[.,]',dapp$balance[i])){
+    dapp$balance[i]<-  gsub('[.,]', '', dapp$balance[i])
+    dapp$balance[i]<-  gsub('[k,]', '00', dapp$balance[i])
+    dapp$balance[i]<-  gsub('[M,]', '00000', dapp$balance[i])
+  }
+  else{
+    dapp$balance[i]<-  gsub('[k,]', '000', dapp$balance[i])
+    dapp$balance[i]<-  gsub('[M,]', '000000', dapp$balance[i])
+  }
+  
+}
+
+dapp$balance<-as.numeric(dapp$balance)
+summary(dapp$balance)
+
+
+for(i in 1:length(dapp$volume_24h)){
+  if(grepl('[.,]',dapp$volume_24h[i])){
+    dapp$volume_24h[i]<-  gsub('[.,]', '', dapp$volume_24h[i])
+    dapp$volume_24h[i]<-  gsub('[k,]', '00', dapp$volume_24h[i])
+    dapp$volume_24h[i]<-  gsub('[M,]', '00000', dapp$volume_24h[i])
+    dapp$volume_24h[i]<-  gsub('[$,]', '', dapp$volume_24h[i])
+  }
+  else{
+    dapp$volume_24h[i]<-  gsub('[k,]', '000', dapp$volume_24h[i])
+    dapp$volume_24h[i]<-  gsub('[M,]', '000000', dapp$volume_24h[i])
+    dapp$volume_24h[i]<-  gsub('[$,]', '', dapp$volume_24h[i])
+  }
+  
+}
+
+dapp$volume_24h<-as.numeric(dapp$volume_24h)
+summary(dapp$volume_24h)
+
+for(i in 1:length(dapp$volume_7d)){
+  if(grepl('[.,]',dapp$volume_7d[i])){
+    dapp$volume_7d[i]<-  gsub('[.,]', '', dapp$volume_7d[i])
+    dapp$volume_7d[i]<-  gsub('[k,]', '00', dapp$volume_7d[i])
+    dapp$volume_7d[i]<-  gsub('[M,]', '00000', dapp$volume_7d[i])
+    dapp$volume_7d[i]<-  gsub('[$,]', '', dapp$volume_7d[i])
+  }
+  else{
+    dapp$volume_7d[i]<-  gsub('[k,]', '000', dapp$volume_7d[i])
+    dapp$volume_7d[i]<-  gsub('[M,]', '000000', dapp$volume_7d[i])
+    dapp$volume_7d[i]<-  gsub('[$,]', '', dapp$volume_7d[i])
+  }
+  
+}
+dapp$volume_7d<-as.numeric(dapp$volume_7d)
+summary(dapp$volume_7d)
+
+for(i in 1:length(dapp$users_24h)){
+  if(grepl('[.,]',dapp$users_24h[i])){
+    dapp$users_24h[i]<-  gsub('[.,]', '', dapp$users_24h[i])
+    dapp$users_24h[i]<-  gsub('[k,]', '00', dapp$users_24h[i])
+    dapp$users_24h[i]<-  gsub('[M,]', '00000', dapp$users_24h[i])
+
+  }
+  else{
+    dapp$users_24h[i]<-  gsub('[k,]', '000', dapp$users_24h[i])
+    dapp$users_24h[i]<-  gsub('[M,]', '000000', dapp$users_24h[i])
+   
+  }
+  
+}
+dapp$users_24h<-as.numeric(dapp$users_24h)
+summary(dapp$users_24h)
+```
+## Correlation matrix with rank as target variable
+```{r}
+features <- c("Txs_24h","Txs_7d", "balance", "volume_24h", "volume_7d","users_24h")
+cormat <- round(cor(dapp[c("rank", features)]), 2)
+
+melted_cormat <- melt(cormat)
+ggplot(data = melted_cormat, aes(Var2, Var1, fill = value))+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Pearson\nCorrelation") +
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                   size = 12, hjust = 1))+
+  coord_fixed()
+cormat
+
+```
+## Reading the STATE OF THE DAPP dataset
+
+```{r}
+state_of_dapp<-read.csv("state_of_the_dapp.csv")
+state<-state_of_dapp%>%
+  arrange(rank)
+```
+
+## Data preprocessing
+
+```{r}
+for(i in 1:length(state$volume_7d)){
+  if(grepl('[USD,]',state$volume_7d[i])){
+    state$volume_7d[i]<-  gsub('[USD,]', '', state$volume_7d[i])
+
+  }
+  
+}
+state$volume_7d<-as.numeric(state$volume_7d)
+class(state$volume_7d)
+state$dev_activity_30d<-as.numeric(state$dev_activity_30d)
+```
+
+
+## Correlation matrix for state of the dapp dataset
+```{r}
+state$users_24h<-as.numeric(state$users_24h)
+features <- c("dev_activity_30d","transaction_count", "total_transaction_volume_ether", "volume_7d","users_24h","contract_count","dapp_total_loss","user_loss_average")
+cormat <- round(cor(state[c("rank", features)],use="complete.obs"), 2)
+
+melted_cormat <- melt(cormat)
+ggplot(data = melted_cormat, aes(Var2, Var1, fill = value))+
+  geom_tile(color = "white")+
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Pearson\nCorrelation") +
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                                   size = 12, hjust = 1))+
+  coord_fixed()
+cormat
+
+```
+
+## Regression models to predict rank
+```{r}
+dapp_filter_zero<-dapp%>%
+  filter(users_24h>0)%>%
+  filter(Txs_24h>0)%>%
+  filter(volume_24h>0)%>%
+  filter(balance>0)
+
+plot(lm(data=dapp_filter_zero, rank~users_24h+volume_24h+Txs_24h+balance))
+summary(lm(data=dapp_filter_zero, rank~volume_24h+Txs_24h+balance))
+plot(lm(data=dapp_filter_zero, rank~poly(users_24h, degree=2)+poly(volume_24h, degree=2)+poly(Txs_24h, degree=2)+poly(balance, degree=2)))
+summary(lm(data=dapp_filter_zero, rank~poly(volume_24h, degree=2)+poly(Txs_24h, degree=2)+poly(balance, degree=2)))
+```
+
+## Regression models to predict Dapp profits
+```{r}
+state<- state%>%
+  filter(dapp_total_loss!=(-1.0000))%>%
+  filter(user_total_loss!=(-1.0000))%>%
+  filter(user_loss_average!=(-1.0000))%>%
+  filter(total_transaction_volume_ether!=(-1.0000))
+
+summary(lm(data= state, dapp_total_loss~total_transaction_volume_ether+user_loss_average+user_count_unique_remove_contract_creator))
+plot(lm(data= state, dapp_total_loss~total_transaction_volume_ether+user_loss_average+user_count_unique_remove_contract_creator))
+summary(lm(data= state, dapp_total_loss~poly(total_transaction_volume_ether, degree=2)+ poly(user_loss_average, degree=2)+poly(user_count_unique_remove_contract_creator, degree=2)))
+plot(lm(data= state, dapp_total_loss~poly(total_transaction_volume_ether, degree=2)+ poly(user_loss_average, degree=2)+poly(user_count_unique_remove_contract_creator, degree=2)))
+
+```

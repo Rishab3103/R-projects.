@@ -1,0 +1,92 @@
+Call:
+lm(formula = Ladder.score ~ Logged.GDP.per.capita + Social.support + 
+    Healthy.life.expectancy + Freedom.to.make.life.choices + 
+    Generosity + Perceptions.of.corruption, data = happiness)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.75647 -0.31792  0.06653  0.37230  1.48375 
+
+Coefficients:
+                             Estimate Std. Error t value Pr(>|t|)
+(Intercept)                  -2.05938    0.63984  -3.219 0.001588
+Logged.GDP.per.capita         0.22908    0.08208   2.791 0.005960
+Social.support                2.72332    0.66118   4.119 6.35e-05
+Healthy.life.expectancy       0.03531    0.01297   2.721 0.007293
+Freedom.to.make.life.choices  1.77682    0.49752   3.571 0.000481
+Generosity                    0.41057    0.33704   1.218 0.225126
+Perceptions.of.corruption    -0.62816    0.31480  -1.995 0.047857
+                                
+(Intercept)                  ** 
+Logged.GDP.per.capita        ** 
+Social.support               ***
+Healthy.life.expectancy      ** 
+Freedom.to.make.life.choices ***
+Generosity                      
+Perceptions.of.corruption    *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.5693 on 146 degrees of freedom
+Multiple R-squared:  0.7483,	Adjusted R-squared:  0.738 
+F-statistic: 72.36 on 6 and 146 DF,  p-value: < 2.2e-16
+
+
+Call:
+lm(formula = Ladder.score ~ Logged.GDP.per.capita + Social.support + 
+    Healthy.life.expectancy + Freedom.to.make.life.choices + 
+    Perceptions.of.corruption, data = happiness)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.85079 -0.34528  0.06273  0.38041  1.47120 
+
+Coefficients:
+                             Estimate Std. Error t value Pr(>|t|)
+(Intercept)                  -1.93892    0.63320  -3.062 0.002614
+Logged.GDP.per.capita         0.21370    0.08124   2.631 0.009434
+Social.support                2.74190    0.66209   4.141  5.8e-05
+Healthy.life.expectancy       0.03470    0.01299   2.672 0.008394
+Freedom.to.make.life.choices  1.92196    0.48384   3.972 0.000111
+Perceptions.of.corruption    -0.72755    0.30455  -2.389 0.018165
+                                
+(Intercept)                  ** 
+Logged.GDP.per.capita        ** 
+Social.support               ***
+Healthy.life.expectancy      ** 
+Freedom.to.make.life.choices ***
+Perceptions.of.corruption    *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.5703 on 147 degrees of freedom
+Multiple R-squared:  0.7458,	Adjusted R-squared:  0.7371 
+F-statistic: 86.25 on 5 and 147 DF,  p-value: < 2.2e-16
+
+
+Call:
+lm(formula = Ladder.score ~ Logged.GDP.per.capita + Social.support + 
+    Freedom.to.make.life.choices, data = happiness)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.17083 -0.34572  0.09236  0.45117  1.45179 
+
+Coefficients:
+                             Estimate Std. Error t value Pr(>|t|)
+(Intercept)                  -2.41559    0.41711  -5.791 4.00e-08
+Logged.GDP.per.capita         0.39382    0.06453   6.103 8.59e-09
+Social.support                2.79172    0.66028   4.228 4.09e-05
+Freedom.to.make.life.choices  2.51521    0.46753   5.380 2.83e-07
+                                
+(Intercept)                  ***
+Logged.GDP.per.capita        ***
+Social.support               ***
+Freedom.to.make.life.choices ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.594 on 149 degrees of freedom
+Multiple R-squared:  0.7204,	Adjusted R-squared:  0.7148 
+F-statistic:   128 on 3 and 149 DF,  p-value: < 2.2e-16
+
